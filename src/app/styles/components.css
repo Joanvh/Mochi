@@ -26,5 +26,17 @@
 .loading-state { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--color-text-secondary); }
 .loading-state__indicator { width: 16px; height: 16px; border: 2px solid var(--color-border); border-top-color: var(--color-primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
 .error-boundary { max-width: 40rem; margin: 0 auto; padding: var(--space-16) var(--space-4); }
+.shopping-list-page { max-width: 42rem; }
+.shopping-list-page__description { color: var(--color-text-secondary); font-size: 1.125rem; }
+.manual-list-input { display: grid; gap: var(--space-2); margin: var(--space-8) 0; }
+.manual-list-input label { font-weight: 700; }
+.manual-list-input p { margin-bottom: var(--space-1); color: var(--color-text-secondary); font-size: 0.875rem; }
+.manual-list-input textarea { width: 100%; resize: vertical; min-height: 112px; padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-sm); color: var(--color-text-primary); background: var(--color-background); }
+.manual-list-input textarea:focus { border-color: var(--color-primary); outline: none; }
+.shopping-list-editor { display: grid; gap: var(--space-2); padding: 0; margin: 0 0 var(--space-6); list-style: none; }
+.shopping-list-editor__item { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+.shopping-list-editor__item p { margin: 0 0 var(--space-1); font-weight: 700; }
+.status-badge { color: var(--color-text-secondary); font-size: 0.875rem; }
+.empty-list { margin: 0 0 var(--space-6); padding: var(--space-6); border: 1px dashed var(--color-border); border-radius: var(--radius-md); color: var(--color-text-secondary); text-align: center; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (min-width: 640px) { .app-header { min-height: 80px; padding-inline: var(--space-8); } .page-container { padding: var(--space-12) var(--space-8); } .entry-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
