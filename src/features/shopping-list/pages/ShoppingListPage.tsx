@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '../../../components/common/Button'
 import { PageContainer } from '../../../components/common/PageContainer'
 import { JsonProductRepository } from '../../../repositories/JsonProductRepository'
@@ -23,6 +24,7 @@ function createDraftItem(rawText: string): ShoppingListItem {
 }
 
 export function ShoppingListPage() {
+  const navigate = useNavigate()
   const [items, setItems] = useState<ShoppingListItem[]>([])
   const [isMatching, setIsMatching] = useState(false)
   const [matchOptions, setMatchOptions] = useState<Record<string, ProductMatchOption[]>>({})
@@ -93,7 +95,7 @@ export function ShoppingListPage() {
       {items.flatMap((item) => matchOptions[item.id] ? [{ item, options: matchOptions[item.id] }] : []).map(({ item, options }) => (
         <ProductMatchSelector key={item.id} itemId={item.id} query={item.rawText} options={options} onSelect={(productId) => selectMatch(item.id, productId)} />
       ))}
-      <Button fullWidth disabled={items.length === 0 || items.some((item) => item.status === 'UNRESOLVED')}>
+      <Button fullWidth disabled={items.length === 0 || items.some((item) => item.status === 'UNRESOLVED')} onClick={() => navigate('/recommendations', { state: { items } })}>
         Confirmar lista
       </Button>
     </PageContainer>
