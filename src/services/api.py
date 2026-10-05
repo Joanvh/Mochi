@@ -18,6 +18,7 @@ Ejemplos (el recálculo es simplemente volver a pedir la ruta con otra sección 
     DELETE /stores/{store_id}/incidents                         -> quita todas las incidencias
 """
 import glob
+import json
 import os
 from typing import Literal
 
@@ -163,7 +164,10 @@ class UserResponse(BaseModel):
 
 # --- CARGA DE DATOS MOCK ---
 DATA_DIR = os.environ.get("STORES_DIR", os.path.dirname(os.path.abspath(__file__)))
-USUARIOS_FILE = os.path.join(DATA_DIR, "users.json")
+USUARIOS_FILE = os.environ.get(
+    "USERS_FILE",
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "users.json"),
+)
 
 def cargar_usuarios():
     try:

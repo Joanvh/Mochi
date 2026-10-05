@@ -1,7 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from incidents.incidents_service import router as incidents_router
 from product_matching.product_matching_service import router as product_matching_router
-from api import router as routing_router
+from api import cargar_usuarios, router as routing_router
 from recommendations.recommendations_service import router as recommendations_router
 
 app = FastAPI(title="Mercadona Sync API")
