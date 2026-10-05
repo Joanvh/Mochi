@@ -17,7 +17,6 @@ class TipoIncidencia(str, Enum):
     REPOSICION = "reposición"
     BLOQUEO = "pasillo_bloqueado"
     DERRAME = "derrame"
-    COLA_CAJA = "cola_caja"
 
 class EstadoIncidencia(str, Enum):
     ACTIVA = "activa"
