@@ -1,7 +1,10 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '../../../components/common/Button'
 import { PageContainer } from '../../../components/common/PageContainer'
 import { StoreMap } from '../../../components/map/StoreMap'
+import { ReportButton } from '../../reports/components/ReportButton'
+import { ReportModal } from '../../reports/components/ReportModal'
 import { useAppStore } from '../../../store/useAppStore'
 
 export function NavigationPage() {
@@ -9,6 +12,7 @@ export function NavigationPage() {
   const activeRoute = useAppStore((state) => state.activeRoute)
   const currentStore = useAppStore((state) => state.currentStore)
   const items = useAppStore((state) => state.draftShoppingList)
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false)
 
   if (!currentStore || !activeRoute) {
     return <PageContainer className="page-placeholder">
@@ -44,7 +48,8 @@ export function NavigationPage() {
       <strong>0 de {totalProducts} productos</strong>
       <div aria-hidden="true"><span style={{ width: '0%' }} /></div>
     </section>
-    <Button disabled fullWidth variant="secondary">Reportar incidencia</Button>
-    <p className="navigation-page__note">Los controles de recogida y reporte se activarán al conectar la lógica de navegación.</p>
+    <ReportButton onClick={() => setIsReportModalOpen(true)} />
+    <p className="navigation-page__note">El control de recogida se activará al conectar la lógica de navegación.</p>
+    {isReportModalOpen && <ReportModal store={currentStore} onClose={() => setIsReportModalOpen(false)} />}
   </PageContainer>
 }

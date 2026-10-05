@@ -100,5 +100,18 @@
 .navigation-page__progress > div { height: 8px; overflow: hidden; border-radius: var(--radius-pill); background: var(--color-border); }
 .navigation-page__progress > div span { display: block; height: 100%; border-radius: inherit; background: var(--color-primary); }
 .navigation-page__note { margin: var(--space-3) 0 0; color: var(--color-text-secondary); font-size: 0.875rem; text-align: center; }
+.report-modal__backdrop { position: fixed; z-index: 10; inset: 0; display: grid; place-items: end center; padding: var(--space-4); background: rgb(0 0 0 / 45%); }
+.report-modal { width: min(100%, 34rem); padding: var(--space-6); border-radius: var(--radius-lg); background: var(--color-background); box-shadow: var(--shadow-card); }
+.report-modal__header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-6); }
+.report-modal__header .eyebrow { margin-bottom: var(--space-1); }
+.report-modal__header h2 { margin-bottom: 0; }
+.report-modal__close { width: 36px; height: 36px; border: 1px solid var(--color-border); border-radius: var(--radius-pill); color: var(--color-text-primary); background: var(--color-background); font-size: 1.5rem; line-height: 1; }
+.report-modal form { display: grid; gap: var(--space-2); }
+.report-modal label { margin-top: var(--space-2); font-weight: 700; }
+.report-modal select { width: 100%; min-height: 44px; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-sm); color: var(--color-text-primary); background: var(--color-background); }
+.report-modal select:focus { border-color: var(--color-primary); outline: none; }
+.report-modal__notice { margin: var(--space-3) 0 0; padding: var(--space-3); border-radius: var(--radius-sm); color: var(--color-primary-active); background: var(--color-primary-subtle); }
+.report-modal__actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); margin-top: var(--space-6); }
+@media (min-width: 640px) { .report-modal__backdrop { place-items: center; } }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (min-width: 640px) { .app-header { min-height: 80px; padding-inline: var(--space-8); } .page-container { padding: var(--space-12) var(--space-8); } .entry-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
