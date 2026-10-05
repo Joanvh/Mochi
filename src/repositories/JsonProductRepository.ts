@@ -12,4 +12,12 @@ export class JsonProductRepository implements ProductRepository {
   async getById(id: ID): Promise<Product | null> {
     return this.products.find((product) => product.id === id && product.active) ?? null
   }
+
+  async search(query: string): Promise<Product[]> {
+    const normalizedQuery = query.trim().toLocaleLowerCase('es-ES')
+    return this.products.filter((product) => product.active && (
+      product.name.toLocaleLowerCase('es-ES').includes(normalizedQuery)
+      || product.keywords.some((keyword) => keyword.toLocaleLowerCase('es-ES').includes(normalizedQuery))
+    ))
+  }
 }
