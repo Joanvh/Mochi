@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
+import mercadonaSymbol from '../../../assets/branding/mercadona-symbol.png'
 import { Button } from '../../../components/common/Button'
 import { JsonProductRepository } from '../../../repositories/JsonProductRepository'
 import { JsonUserRepository, type UserAccount } from '../../../repositories/JsonUserRepository'
@@ -134,6 +135,7 @@ export function LoginModal({ onClose }: LoginModalProps) {
       <div className="login-modal">
         <header className="login-modal__header">
           <div>
+            <img className="login-modal__logo" src={mercadonaSymbol} alt="Mercadona" />
             <p className="eyebrow">Mercadona Sync</p>
             <h2 id="login-modal-title">Iniciar sesión</h2>
           </div>

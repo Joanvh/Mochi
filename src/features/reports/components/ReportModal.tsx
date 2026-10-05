@@ -53,7 +53,7 @@ export function ReportModal({ onClose, store }: ReportModalProps) {
         <div><p className="eyebrow">Ayuda a otros clientes</p><h2 id="report-modal-title">Reportar incidencia</h2></div>
         <button className="report-modal__close" type="button" onClick={onClose} aria-label="Cerrar reporte">×</button>
       </div>
-      <form onSubmit={prepareReport}>
+      <form className="report-modal__form" onSubmit={prepareReport}>
         <label htmlFor="report-type">¿Qué ocurre?</label>
         <select id="report-type" value={reportType} onChange={(event) => changeReportType(event.target.value as Incident['type'])}>
           {REPORT_TYPE_OPTIONS.map((option) => <option key={option.type} value={option.type}>{option.label}</option>)}
