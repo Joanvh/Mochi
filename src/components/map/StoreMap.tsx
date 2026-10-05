@@ -1,5 +1,7 @@
 import type { Incident, Route, Store } from '../../types'
+import { CheckoutMarker } from './CheckoutMarker'
 import { CurrentPositionMarker } from './CurrentPositionMarker'
+import { IncidentMarker } from './IncidentMarker'
 import { ProductMarker } from './ProductMarker'
 import { RouteOverlay } from './RouteOverlay'
 import { StoreLayout } from './StoreLayout'
@@ -21,6 +23,10 @@ export function StoreMap({ currentNodeId, incidents, route, store, targetProduct
       <desc id="store-map-description">Distribución de secciones, estanterías, entrada y cajas de la tienda.</desc>
       <StoreLayout layout={store.layout} />
       {route && <RouteOverlay graph={store.graph} nodePath={route.nodePath} />}
+      {store.checkouts.map((checkout) => <CheckoutMarker key={checkout.id} checkout={checkout} store={store} />)}
+      {incidents.filter((incident) => incident.status === 'ACTIVE').map((incident) => (
+        <IncidentMarker key={incident.id} incident={incident} store={store} />
+      ))}
       <CurrentPositionMarker currentNodeId={currentNodeId} graph={store.graph} />
       {targetProductId && <ProductMarker productId={targetProductId} store={store} />}
     </svg>

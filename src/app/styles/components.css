@@ -72,6 +72,15 @@
 .store-map__current-position text, .store-map__product-marker text { fill: var(--color-text-primary); font-family: var(--font-body); font-size: 15px; font-weight: 700; text-anchor: middle; paint-order: stroke; stroke: var(--color-background); stroke-width: 5; stroke-linejoin: round; }
 .store-map__product-marker circle { fill: var(--color-primary); stroke: var(--color-background); stroke-width: 4; }
 .store-map__product-marker path { fill: var(--color-background); }
+.store-map__checkout-marker rect { stroke-width: 3; }
+.store-map__checkout-marker--open rect { fill: var(--color-primary-subtle); stroke: var(--color-primary); }
+.store-map__checkout-marker--closed rect { fill: var(--color-surface-subtle); stroke: var(--color-text-muted); }
+.store-map__checkout-marker text { fill: var(--color-text-primary); font-family: var(--font-body); font-size: 11px; font-weight: 700; text-anchor: middle; }
+.store-map__incident-marker circle { stroke: var(--color-background); stroke-width: 4; }
+.store-map__incident-marker text { fill: var(--color-background); font-family: var(--font-body); font-size: 21px; font-weight: 700; text-anchor: middle; }
+.store-map__incident-marker--congestion circle, .store-map__incident-marker--long_checkout_queue circle { fill: var(--color-warning-strong); }
+.store-map__incident-marker--restocking circle { fill: var(--color-info); }
+.store-map__incident-marker--spill circle, .store-map__incident-marker--blocked_aisle circle, .store-map__incident-marker--product_out_of_stock circle { fill: var(--color-danger); }
 .route-summary-page__metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); margin: var(--space-6) 0; }
 .route-summary-page__metrics div { padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-background); }
 .route-summary-page__metrics dt, .route-summary-page__next-label { color: var(--color-text-secondary); font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; }
