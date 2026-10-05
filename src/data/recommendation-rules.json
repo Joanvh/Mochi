@@ -1,0 +1,6 @@
+[
+  { "triggerProductIds": ["product_spaghetti", "product_tomato_sauce"], "recommendedProductIds": ["product_cheese_grated"], "reason": "Completa tu pasta con un toque de queso rallado." },
+  { "triggerProductIds": ["product_bread", "product_ham"], "recommendedProductIds": ["product_cheese_cured"], "reason": "Una opción para completar un bocadillo." },
+  { "triggerProductIds": ["product_rice"], "recommendedProductIds": ["product_tomato_sauce"], "reason": "Puede acompañar un plato de arroz." },
+  { "triggerProductIds": ["product_chicken"], "recommendedProductIds": ["product_carrot"], "reason": "Una verdura para acompañar el pollo." }
+]
