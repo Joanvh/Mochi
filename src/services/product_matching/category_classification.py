@@ -287,6 +287,5 @@ def main(entrada):
            res.extend(top_tres)
         else:
             incluir(top_tres, res)
-    print(f"Las 3 palabras más similares a '{words}' son:")
     res = sorted(res, key=lambda x: x["similarity"], reverse=True)
     return(res[0:3])
