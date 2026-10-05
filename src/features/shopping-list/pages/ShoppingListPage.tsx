@@ -2,16 +2,13 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../../../components/common/Button'
 import { PageContainer } from '../../../components/common/PageContainer'
-import { JsonProductRepository } from '../../../repositories/JsonProductRepository'
-import { ProductMatchingService } from '../../../services/product_matching/ProductMatchingService'
+import { mercadonaApi } from '../../../services/backend/MercadonaApiService'
 import { useAppStore } from '../../../store/useAppStore'
 import type { ShoppingListItem } from '../../../types'
 import { ManualListInput } from '../components/ManualListInput'
 import { ProductMatchSelector, type ProductMatchOption } from '../components/ProductMatchSelector'
 import { ShoppingListEditor } from '../components/ShoppingListEditor'
 
-const productRepository = new JsonProductRepository()
-const productMatchingService = new ProductMatchingService(productRepository)
 let nextDraftItemId = 0
 
 function createDraftItem(rawText: string): ShoppingListItem {
@@ -28,17 +25,23 @@ export function ShoppingListPage() {
   const navigate = useNavigate()
   const items = useAppStore((state) => state.draftShoppingList)
   const setItems = useAppStore((state) => state.setDraftShoppingList)
+  const currentStore = useAppStore((state) => state.currentStore)
+  const setCurrentStore = useAppStore((state) => state.setCurrentStore)
   const [isMatching, setIsMatching] = useState(false)
   const [matchOptions, setMatchOptions] = useState<Record<string, ProductMatchOption[]>>({})
   const [unmatchedItemIds, setUnmatchedItemIds] = useState<string[]>([])
+  const [error, setError] = useState<string | null>(null)
 
   async function addTerms(terms: string[]) {
     setIsMatching(true)
+    setError(null)
 
     try {
+      const store = currentStore ?? await mercadonaApi.loadPrimaryStore()
+      if (!currentStore) setCurrentStore(store)
       const entries = await Promise.all(terms.map(async (term) => {
         const item = createDraftItem(term)
-        const options = await getMatchOptions(term)
+        const options = await getMatchOptions(term, store.id)
 
         if (options.length === 1) {
           return {
@@ -60,6 +63,8 @@ export function ShoppingListPage() {
         ...currentIds,
         ...entries.filter((entry) => entry.unmatched).map((entry) => entry.item.id),
       ])
+    } catch {
+      setError('No hemos podido consultar el clasificador de productos. Comprueba que la API está iniciada.')
     } finally {
       setIsMatching(false)
     }
@@ -90,8 +95,9 @@ export function ShoppingListPage() {
       <p className="eyebrow">Paso 1 · Lista de compra</p>
       <h1>¿Qué necesitas hoy?</h1>
       <p className="shopping-list-page__description">
-        Añade los productos que quieres comprar. Los relacionaremos con el catálogo en el siguiente bloque.
+        Añade los productos que quieres comprar. Los relacionaremos con las categorías y ubicaciones de la tienda.
       </p>
+      {error && <p className="login-modal__error" role="alert">{error}</p>}
       <ManualListInput isSubmitting={isMatching} onSubmit={addTerms} />
       <ShoppingListEditor items={items} unmatchedItemIds={unmatchedItemIds} onRemove={removeItem} />
       {items.flatMap((item) => matchOptions[item.id] ? [{ item, options: matchOptions[item.id] }] : []).map(({ item, options }) => (
@@ -104,10 +110,7 @@ export function ShoppingListPage() {
   )
 }
 
-async function getMatchOptions(query: string): Promise<ProductMatchOption[]> {
-  const matches = await productMatchingService.match(query)
-  return Promise.all(matches.map(async (match): Promise<ProductMatchOption | null> => {
-    const product = await productRepository.getById(match.productId)
-    return product ? { product, match } : null
-  })).then((options) => options.filter((option): option is ProductMatchOption => option !== null))
+async function getMatchOptions(query: string, storeId: string): Promise<ProductMatchOption[]> {
+  const matches = await mercadonaApi.matchProducts(query, storeId)
+  return matches.map(({ product, match }) => ({ product, match }))
 }

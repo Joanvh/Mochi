@@ -1,69 +1,25 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../../../components/common/Button'
 import { LoadingState } from '../../../components/common/LoadingState'
 import { PageContainer } from '../../../components/common/PageContainer'
 import { StoreMap } from '../../../components/map/StoreMap'
-import { JsonProductRepository } from '../../../repositories/JsonProductRepository'
-import { JsonStoreRepository } from '../../../repositories/JsonStoreRepository'
-import { calculateRoute } from '../../../services/routing/RoutingEngine'
+import { mercadonaApi } from '../../../services/backend/MercadonaApiService'
 import { useAppStore } from '../../../store/useAppStore'
-import type { Product, Route, Store } from '../../../types'
-
-const productRepository = new JsonProductRepository()
-const storeRepository = new JsonStoreRepository()
+import type { Store } from '../../../types'
 
 export function RouteSummaryPage() {
   const navigate = useNavigate()
   const currentStore = useAppStore((state) => state.currentStore)
   const activeIncidents = useAppStore((state) => state.activeIncidents)
   const pendingItems = useAppStore((state) => state.draftShoppingList)
+  const activeRoute = useAppStore((state) => state.activeRoute)
   const setCurrentStore = useAppStore((state) => state.setCurrentStore)
   const setActiveRoute = useAppStore((state) => state.setActiveRoute)
   const [loadedStore, setLoadedStore] = useState<Store | null>(null)
-  const [products, setProducts] = useState<Product[]>([])
+  const [isCalculating, setIsCalculating] = useState(false)
+  const [routeError, setRouteError] = useState<string | null>(null)
   const store = currentStore ?? loadedStore
-
-  const activeRoute = useMemo<Route | null>(() => {
-    if (!store) {
-      return null
-    }
-
-    const pendingProducts = pendingItems
-      .filter((item) => item.status === 'PENDING' && item.productId)
-      .map((item) => store.productLocations.find((location) => location.productId === item.productId))
-      .filter((location): location is Store['productLocations'][number] => location !== undefined)
-    const result = calculateRoute({
-      graph: store.graph,
-      currentNodeId: store.entranceNodeId,
-      pendingProducts,
-      incidents: activeIncidents,
-      checkouts: store.checkouts,
-    })
-
-    return result ? {
-      id: 'route-preview',
-      nodePath: result.nodePath,
-      orderedProductIds: result.orderedProductIds,
-      estimatedTime: result.estimatedTime,
-      estimatedDistance: result.estimatedDistance,
-      checkoutId: result.checkoutId,
-      generatedAt: '2026-10-05T00:00:00.000Z',
-      reason: 'INITIAL',
-    } : null
-  }, [activeIncidents, pendingItems, store])
-
-  useEffect(() => {
-    setActiveRoute(activeRoute)
-  }, [activeRoute, setActiveRoute])
-
-  useEffect(() => {
-    async function loadProducts() {
-      setProducts(await productRepository.getAll())
-    }
-
-    void loadProducts()
-  }, [])
 
   useEffect(() => {
     if (currentStore) {
@@ -71,21 +27,51 @@ export function RouteSummaryPage() {
     }
 
     async function loadStore() {
-      const loadedStore = await storeRepository.getById('store_01')
-      setLoadedStore(loadedStore)
-      setCurrentStore(loadedStore)
+      try {
+        const nextStore = await mercadonaApi.loadPrimaryStore()
+        setLoadedStore(nextStore)
+        setCurrentStore(nextStore)
+      } catch {
+        setRouteError('No se ha podido cargar el plano definitivo de la tienda.')
+      }
     }
 
     void loadStore()
   }, [currentStore, setCurrentStore])
+
+  useEffect(() => {
+    if (!store) return
+    const activeStore = store
+    const productIds = pendingItems.filter((item) => item.status === 'PENDING' && item.productId).map((item) => item.productId as string)
+    if (productIds.length === 0) {
+      setActiveRoute(null)
+      return
+    }
+
+    async function requestRoute() {
+      setIsCalculating(true)
+      setRouteError(null)
+      try {
+        const route = await mercadonaApi.calculateRoute(activeStore, productIds, activeStore.entranceNodeId, 'INITIAL')
+        setActiveRoute(route)
+      } catch {
+        setRouteError('No se ha podido calcular la ruta con el motor de navegación.')
+        setActiveRoute(null)
+      } finally {
+        setIsCalculating(false)
+      }
+    }
+
+    void requestRoute()
+  }, [activeIncidents, pendingItems, setActiveRoute, store])
 
   if (!store) {
     return <PageContainer className="page-placeholder"><LoadingState label="Preparando el plano de la tienda…" /></PageContainer>
   }
 
   const routeProducts = activeRoute?.orderedProductIds.map((productId) => (
-    products.find((product) => product.id === productId)
-  )).filter((product): product is Product => product !== undefined) ?? []
+    pendingItems.find((item) => item.productId === productId)?.rawText ?? `Producto ${productId}`
+  )) ?? []
   const nextProduct = routeProducts[0]
 
   return <PageContainer className="route-summary-page">
@@ -93,7 +79,7 @@ export function RouteSummaryPage() {
     <h1>Tu recorrido por la tienda</h1>
     <p className="route-summary-page__description">Hemos ordenado tu lista para que recorras la tienda de forma eficiente.</p>
     <StoreMap currentNodeId={store.entranceNodeId} incidents={activeIncidents} route={activeRoute} store={store} />
-    {activeRoute ? <>
+    {isCalculating ? <LoadingState label="Calculando el recorrido óptimo…" /> : activeRoute ? <>
       <dl className="route-summary-page__metrics">
         <div><dt>Productos</dt><dd>{routeProducts.length}</dd></div>
         <div><dt>Tiempo estimado</dt><dd>{Math.ceil(activeRoute.estimatedTime)} min</dd></div>
@@ -101,14 +87,14 @@ export function RouteSummaryPage() {
       </dl>
       <section className="route-summary-page__details" aria-label="Detalle de la ruta">
         <p className="route-summary-page__next-label">Primera parada</p>
-        <h2>{nextProduct?.name ?? 'Productos de tu lista'}</h2>
+        <h2>{nextProduct ?? 'Productos de tu lista'}</h2>
         <ol className="route-summary-page__products">
-          {routeProducts.map((product) => <li key={product.id}>{product.name}</li>)}
+          {routeProducts.map((product, index) => <li key={`${product}-${index}`}>{product}</li>)}
         </ol>
       </section>
       <Button fullWidth onClick={() => navigate('/navigation')}>Comenzar navegación</Button>
     </> : <section className="empty-list">
-      <p>No hemos podido crear una ruta con la lista actual.</p>
+      <p>{routeError ?? 'No hemos podido crear una ruta con la lista actual.'}</p>
       <Button onClick={() => navigate('/list')}>Volver a la lista</Button>
     </section>}
   </PageContainer>

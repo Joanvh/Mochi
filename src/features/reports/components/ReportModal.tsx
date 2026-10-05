@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react'
 import { Button } from '../../../components/common/Button'
+import { mercadonaApi } from '../../../services/backend/MercadonaApiService'
 import type { Incident, Store } from '../../../types'
 
 interface ReportModalProps {
   onClose: () => void
+  onReported: (incident: Incident) => void
   store: Store
 }
 
@@ -27,9 +29,11 @@ const REPORT_TYPE_OPTIONS: ReportTypeOption[] = [
   { type: 'LONG_CHECKOUT_QUEUE', label: 'Cola larga', targetType: 'CHECKOUT' },
 ]
 
-export function ReportModal({ onClose, store }: ReportModalProps) {
+export function ReportModal({ onClose, onReported, store }: ReportModalProps) {
   const [reportType, setReportType] = useState<Incident['type']>('PRODUCT_OUT_OF_STOCK')
   const [isPrepared, setIsPrepared] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const selectedOption = REPORT_TYPE_OPTIONS.find((option) => option.type === reportType) ?? REPORT_TYPE_OPTIONS[0]
   const targets = useMemo(() => getTargets(store, selectedOption.targetType), [selectedOption.targetType, store])
   const [targetId, setTargetId] = useState(targets[0]?.id ?? '')
@@ -42,9 +46,23 @@ export function ReportModal({ onClose, store }: ReportModalProps) {
     setIsPrepared(false)
   }
 
-  function prepareReport(event: React.FormEvent<HTMLFormElement>) {
+  async function prepareReport(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setIsPrepared(true)
+    setIsSubmitting(true)
+    setError(null)
+    try {
+      const incident = await mercadonaApi.reportIncident(store, {
+        type: reportType,
+        targetId,
+        targetType: selectedOption.targetType,
+      })
+      onReported(incident)
+      setIsPrepared(true)
+    } catch {
+      setError('No se ha podido enviar la incidencia. Comprueba la conexión con la API.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return <div className="report-modal__backdrop" role="presentation">
@@ -62,10 +80,11 @@ export function ReportModal({ onClose, store }: ReportModalProps) {
         <select id="report-target" value={targetId} onChange={(event) => { setTargetId(event.target.value); setIsPrepared(false) }}>
           {targets.map((target) => <option key={target.id} value={target.id}>{target.label}</option>)}
         </select>
-        {isPrepared && <p className="report-modal__notice" role="status">Reporte preparado. El envío se activará al conectar el flujo de incidencias.</p>}
+        {isPrepared && <p className="report-modal__notice" role="status">Incidencia enviada. Estamos recalculando el recorrido.</p>}
+        {error && <p className="login-modal__error" role="alert">{error}</p>}
         <div className="report-modal__actions">
-          <Button type="button" variant="secondary" onClick={onClose}>Cancelar</Button>
-          <Button type="submit">Preparar reporte</Button>
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting}>Cancelar</Button>
+          <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Enviando…' : 'Enviar incidencia'}</Button>
         </div>
       </form>
     </section>

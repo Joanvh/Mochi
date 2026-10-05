@@ -6,14 +6,8 @@ import { PageContainer } from '../../../components/common/PageContainer'
 import { StoreMap } from '../../../components/map/StoreMap'
 import { ReportButton } from '../../reports/components/ReportButton'
 import { ReportModal } from '../../reports/components/ReportModal'
-import { JsonProductRepository } from '../../../repositories/JsonProductRepository'
-import { JsonStoreRepository } from '../../../repositories/JsonStoreRepository'
-import { calculateRoute } from '../../../services/routing/RoutingEngine'
+import { mercadonaApi } from '../../../services/backend/MercadonaApiService'
 import { useAppStore } from '../../../store/useAppStore'
-import type { Product, Store } from '../../../types'
-
-const productRepository = new JsonProductRepository()
-const storeRepository = new JsonStoreRepository()
 
 export function NavigationPage() {
   const navigate = useNavigate()
@@ -23,9 +17,9 @@ export function NavigationPage() {
   const items = useAppStore((state) => state.draftShoppingList)
   const setCurrentStore = useAppStore((state) => state.setCurrentStore)
   const setActiveRoute = useAppStore((state) => state.setActiveRoute)
+  const setActiveIncidents = useAppStore((state) => state.setActiveIncidents)
   const updateDraftShoppingListItem = useAppStore((state) => state.updateDraftShoppingListItem)
 
-  const [products, setProducts] = useState<Product[]>([])
   const [userNodeId, setUserNodeId] = useState<string | null>(null)
   const [isReportModalOpen, setIsReportModalOpen] = useState(false)
   const [showItemList, setShowItemList] = useState(false)
@@ -41,53 +35,26 @@ export function NavigationPage() {
 
     async function loadStore() {
       setIsLoadingStore(true)
-      const store = await storeRepository.getById('store_01')
-      setCurrentStore(store)
-      setIsLoadingStore(false)
+      try {
+        setCurrentStore(await mercadonaApi.loadPrimaryStore())
+      } finally {
+        setIsLoadingStore(false)
+      }
     }
 
     void loadStore()
   }, [currentStore, setCurrentStore])
 
-
-  // Load products database for item descriptions
-  useEffect(() => {
-    async function loadProducts() {
-      setProducts(await productRepository.getAll())
-    }
-    void loadProducts()
-  }, [])
-
   // Auto-calculate initial route if store is present but no active route
   useEffect(() => {
     if (!currentStore || activeRoute) return
+    const productIds = items.filter((item) => item.status === 'PENDING' && item.productId).map((item) => item.productId as string)
+    if (productIds.length === 0) return
 
-    const pendingProducts = items
-      .filter((item) => item.status === 'PENDING' && item.productId)
-      .map((item) => currentStore.productLocations.find((loc) => loc.productId === item.productId))
-      .filter((loc): loc is Store['productLocations'][number] => loc !== undefined)
-
-    const result = calculateRoute({
-      graph: currentStore.graph,
-      currentNodeId: currentStore.entranceNodeId,
-      pendingProducts,
-      incidents: activeIncidents,
-      checkouts: currentStore.checkouts,
-    })
-
-    if (result) {
-      setActiveRoute({
-        id: `route-nav-${Date.now()}`,
-        nodePath: result.nodePath,
-        orderedProductIds: result.orderedProductIds,
-        estimatedTime: result.estimatedTime,
-        estimatedDistance: result.estimatedDistance,
-        checkoutId: result.checkoutId,
-        generatedAt: new Date().toISOString(),
-        reason: 'INITIAL',
-      })
-    }
-  }, [activeIncidents, activeRoute, currentStore, items, setActiveRoute])
+    void mercadonaApi.calculateRoute(currentStore, productIds, currentStore.entranceNodeId, 'INITIAL')
+      .then(setActiveRoute)
+      .catch(() => setActiveRoute(null))
+  }, [activeRoute, currentStore, items, setActiveRoute])
 
   if (isLoadingStore || (!currentStore && items.length > 0)) {
     return (
@@ -126,7 +93,6 @@ export function NavigationPage() {
   ))
 
   const targetItem = items.find((item) => item.productId === targetProductId)
-  const targetProduct = products.find((p) => p.id === targetProductId)
   const targetLocation = currentStore.productLocations.find((loc) => loc.productId === targetProductId)
   const targetZone = currentStore.layout.zones.find((z) => z.id === targetLocation?.zoneId)
   const targetShelf = currentStore.layout.shelves.find((s) => s.id === targetLocation?.shelfId)
@@ -144,32 +110,9 @@ export function NavigationPage() {
     const nextNodeId = targetLocation?.nodeId ?? currentNodeId
     setUserNodeId(nextNodeId)
 
-    // Recalculate route with remaining pending items
     const remainingPending = pendingItems.filter((i) => i.id !== targetItem.id)
-    const remainingLocations = remainingPending
-      .map((item) => currentStore.productLocations.find((loc) => loc.productId === item.productId))
-      .filter((loc): loc is Store['productLocations'][number] => loc !== undefined)
-
-    const routeResult = calculateRoute({
-      graph: currentStore.graph,
-      currentNodeId: nextNodeId,
-      pendingProducts: remainingLocations,
-      incidents: activeIncidents,
-      checkouts: currentStore.checkouts,
-    })
-
-    if (routeResult) {
-      setActiveRoute({
-        id: `route-${Date.now()}`,
-        nodePath: routeResult.nodePath,
-        orderedProductIds: routeResult.orderedProductIds,
-        estimatedTime: routeResult.estimatedTime,
-        estimatedDistance: routeResult.estimatedDistance,
-        checkoutId: routeResult.checkoutId,
-        generatedAt: new Date().toISOString(),
-        reason: 'PRODUCT_COLLECTED',
-      })
-    }
+    const remainingIds = remainingPending.map((item) => item.productId as string)
+    void mercadonaApi.calculateRoute(currentStore, remainingIds, nextNodeId, 'PRODUCT_COLLECTED').then(setActiveRoute).catch(() => setActiveRoute(null))
   }
 
   // Action: Skip product (mark unavailable)
@@ -179,30 +122,8 @@ export function NavigationPage() {
     updateDraftShoppingListItem(targetItem.id, { status: 'UNAVAILABLE' })
 
     const remainingPending = pendingItems.filter((i) => i.id !== targetItem.id)
-    const remainingLocations = remainingPending
-      .map((item) => currentStore.productLocations.find((loc) => loc.productId === item.productId))
-      .filter((loc): loc is Store['productLocations'][number] => loc !== undefined)
-
-    const routeResult = calculateRoute({
-      graph: currentStore.graph,
-      currentNodeId,
-      pendingProducts: remainingLocations,
-      incidents: activeIncidents,
-      checkouts: currentStore.checkouts,
-    })
-
-    if (routeResult) {
-      setActiveRoute({
-        id: `route-skip-${Date.now()}`,
-        nodePath: routeResult.nodePath,
-        orderedProductIds: routeResult.orderedProductIds,
-        estimatedTime: routeResult.estimatedTime,
-        estimatedDistance: routeResult.estimatedDistance,
-        checkoutId: routeResult.checkoutId,
-        generatedAt: new Date().toISOString(),
-        reason: 'PRODUCT_UNAVAILABLE',
-      })
-    }
+    const remainingIds = remainingPending.map((item) => item.productId as string)
+    void mercadonaApi.calculateRoute(currentStore, remainingIds, currentNodeId, 'PRODUCT_UNAVAILABLE').then(setActiveRoute).catch(() => setActiveRoute(null))
   }
 
   return (
@@ -250,7 +171,7 @@ export function NavigationPage() {
               )}
             </div>
 
-            <h2>{targetProduct?.name ?? targetItem?.rawText ?? 'Producto'}</h2>
+            <h2>{targetItem?.rawText ?? `Producto ${targetProductId ?? ''}`}</h2>
 
             <div className="navigation-page__location-detail">
               <span className="navigation-page__loc-icon">📍</span>
@@ -332,9 +253,16 @@ export function NavigationPage() {
       <ReportButton onClick={() => setIsReportModalOpen(true)} />
 
       {isReportModalOpen && (
-        <ReportModal store={currentStore} onClose={() => setIsReportModalOpen(false)} />
+        <ReportModal
+          store={currentStore}
+          onClose={() => setIsReportModalOpen(false)}
+          onReported={(incident) => {
+            setActiveIncidents([...activeIncidents, incident])
+            const pendingIds = items.filter((item) => item.status === 'PENDING' && item.productId).map((item) => item.productId as string)
+            void mercadonaApi.calculateRoute(currentStore, pendingIds, currentNodeId, 'INCIDENT').then(setActiveRoute).catch(() => setActiveRoute(null))
+          }}
+        />
       )}
     </PageContainer>
   )
 }
-

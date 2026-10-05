@@ -1,7 +1,9 @@
 import type { ApiError } from "./apiTypes";
 
 // Vite inyecta las variables de entorno a través de import.meta.env
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+// En desarrollo Vite redirige /backend a FastAPI para evitar problemas de CORS.
+// En despliegue puede sustituirse con VITE_API_BASE_URL.
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "/backend";
 
 export class ApiClientError extends Error {
   public status: number;
