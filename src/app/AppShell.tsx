@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import mercadonaSymbol from '../assets/branding/mercadona-symbol.png'
+import mercadonaSyncLogo from '../assets/branding/mercadona-sync-logo.png'
 import { LoginModal } from '../features/auth/components/LoginModal'
 import { useAppStore } from '../store/useAppStore'
 import { PAGE_TITLES } from './routes'
@@ -16,8 +16,7 @@ export function AppShell() {
     <div className="app-shell">
       <header className="app-header">
         <Link className="app-brand" to="/" aria-label="Ir al inicio de Mercadona Sync">
-          <img className="app-brand__logo" src={mercadonaSymbol} alt="" aria-hidden="true" />
-          <span>Mercadona Sync</span>
+          <img className="app-brand__logo" src={mercadonaSyncLogo} alt="Mercadona Sync" />
         </Link>
         <div className="app-header__right">
           {!isLanding && <p className="app-header__context">{pageTitle}</p>}
