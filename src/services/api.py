@@ -39,7 +39,7 @@ for _path in sorted(glob.glob(os.path.join(DATA_DIR, "tienda_*.json"))):
         raise RuntimeError(f"{os.path.basename(_path)}: {'; '.join(_st.problems)}")
     STORES[_st.data["store_id"]] = _st
 
-app = FastAPI(title="LAIA · rutas")
+app = FastAPI(title="Mercadona Sync · rutas")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 def _store(store_id: str) -> Store:
@@ -117,10 +117,6 @@ def clear_incidents(store_id: str):
     return {"ok": True}
 
 
-from fastapi import HTTPException
-from pydantic import BaseModel
-import json
-import os
 
 # --- MODELOS DE DATOS ---
 class LoginRequest(BaseModel):

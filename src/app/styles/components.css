@@ -810,3 +810,291 @@
 .finish-page__metrics dt { color: var(--color-text-secondary); font-size: 0.75rem; }
 .finish-page__metrics dd { margin: var(--space-1) 0 0; font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* App Header User & Login */
+.app-header__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.app-header__user {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 4px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-subtle);
+  font-size: 0.8125rem;
+}
+
+.app-header__user-name {
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.app-header__user-btn {
+  border: none;
+  background: transparent;
+  color: var(--color-primary-active);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+.app-header__user-btn:hover {
+  color: var(--color-primary);
+}
+
+.app-header__login-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-primary-active);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.app-header__login-btn:hover {
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+}
+
+/* Login Modal */
+.login-modal__backdrop {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: rgba(18, 30, 35, 0.65);
+  backdrop-filter: blur(6px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.login-modal {
+  width: 100%;
+  max-width: 480px;
+  max-height: min(92svh, 48rem);
+  overflow-y: auto;
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  background: var(--color-background);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
+  animation: modalSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.login-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.login-modal__header h2 {
+  margin-bottom: 0;
+  font-size: 1.5rem;
+}
+
+.login-modal__close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: 1.125rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.login-modal__close:hover {
+  background: var(--color-surface-subtle);
+}
+
+.login-modal__description {
+  color: var(--color-text-secondary);
+  font-size: 0.9375rem;
+  margin-bottom: var(--space-4);
+}
+
+.login-modal__error {
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-subtle);
+  color: var(--color-danger-active);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-left: 3px solid var(--color-danger);
+}
+
+.login-modal__form {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.login-modal__field {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.login-modal__field label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.login-modal__field input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  background: var(--color-background);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.login-modal__field input:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-subtle);
+}
+
+.login-modal__divider {
+  position: relative;
+  text-align: center;
+  margin: var(--space-5) 0 var(--space-4);
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.login-modal__divider::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 1px;
+  background: var(--color-border);
+  z-index: 1;
+}
+
+.login-modal__divider span {
+  position: relative;
+  z-index: 2;
+  padding: 0 var(--space-3);
+  background: var(--color-background);
+}
+
+.login-modal__quick-list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.login-modal__quick-card {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-subtle);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.login-modal__quick-card:hover {
+  border-color: var(--color-primary);
+  background: #f0fdf4;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 171, 97, 0.12);
+}
+
+.login-modal__quick-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.login-modal__quick-avatar {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+
+.login-modal__quick-info {
+  flex: 1;
+  display: grid;
+  line-height: 1.25;
+}
+
+.login-modal__quick-info strong {
+  font-size: 0.9375rem;
+  color: var(--color-text-primary);
+}
+
+.login-modal__quick-email {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.login-modal__quick-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-subtle);
+  color: var(--color-primary-active);
+}
+
+.login-modal__quick-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  padding-top: var(--space-1);
+  border-top: 1px dashed rgba(0, 0, 0, 0.08);
+}
+
+.login-modal__quick-items-label {
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.login-modal__quick-items-list {
+  color: var(--color-text-secondary);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
