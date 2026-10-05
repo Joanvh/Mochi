@@ -16,11 +16,29 @@ export function IncidentMarker({ incident, store }: IncidentMarkerProps) {
     return null
   }
 
-  return <g className={`store-map__incident-marker store-map__incident-marker--${incident.type.toLowerCase()}`} aria-label={`Incidencia: ${formatIncidentType(incident.type)}`}>
-    <circle cx={point.x} cy={point.y} r="17" />
-    <text x={point.x} y={point.y + 6}>!</text>
-  </g>
+  const label = formatIncidentType(incident.type)
+
+  return (
+    <g
+      className={`store-map__incident-marker store-map__incident-marker--${incident.type.toLowerCase()}`}
+      aria-label={`Incidencia: ${label}`}
+      filter="url(#map-marker-shadow)"
+    >
+      <title>{`Incidencia activa: ${label}`}</title>
+      {/* Warning pulse ring */}
+      <circle className="store-map__incident-wave" cx={point.x} cy={point.y} r="22" />
+
+      {/* Main warning circle */}
+      <circle className="store-map__incident-circle" cx={point.x} cy={point.y} r="16" />
+
+      {/* Exclamation mark icon */}
+      <text className="store-map__incident-icon" x={point.x} y={point.y + 6}>
+        !
+      </text>
+    </g>
+  )
 }
+
 
 function getIncidentPoint(incident: Incident, store: Store): MapPoint | null {
   if (incident.targetType === 'EDGE') {
