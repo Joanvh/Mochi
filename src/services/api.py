@@ -48,6 +48,37 @@ def _store(store_id: str) -> Store:
         raise HTTPException(404, f"Tienda desconocida: {store_id}. Disponibles: {list(STORES)}")
     return st
 
+from incidents.incidents_service import db_incidencias, EstadoIncidencia, TipoIncidencia
+
+def aplicar_incidencias_al_grafo(store: Store):
+    """Limpia el grafo y aplica todas las incidencias activas reportadas por los usuarios."""
+    store.clear_incidents()
+    
+    # Extraer incidencias activas
+    activas = [inc for inc in db_incidencias.values() if inc.estado == EstadoIncidencia.ACTIVA]
+    
+    for inc in activas:
+        if inc.tipo in [TipoIncidencia.BLOQUEO, TipoIncidencia.DERRAME]:
+            # Bloqueo total
+            try:
+                if "," in inc.nodo_id: # Es una celda exacta "x,y"
+                    x, y = map(int, inc.nodo_id.split(","))
+                    store.extra[(x, y)] = INF
+                else: # Es un pasillo entero (sección)
+                    store.block_section(int(inc.nodo_id))
+            except ValueError:
+                pass
+        else:
+            # Congestión, reposición, etc (Coste extra de tiempo)
+            coste_penalizacion = 20.0
+            try:
+                if "," in inc.nodo_id:
+                    x, y = map(int, inc.nodo_id.split(","))
+                    store.extra[(x, y)] = coste_penalizacion
+                else:
+                    store.jam_section(int(inc.nodo_id), coste_penalizacion)
+            except ValueError:
+                pass
 
 def _plan(store_id, products, start_section, end_section):
     flat = [p.strip() for item in products for p in item.split(",") if p.strip()]
