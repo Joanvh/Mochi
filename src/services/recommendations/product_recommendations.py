@@ -8,14 +8,14 @@ client = OpenAI(
   api_key = "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"
 )
 
-def main(producto_detectado):
+def main(productos_detectados):
     # 3. Prompt estructurado pidiendo explícitamente formato JSON
     prompt = f"""
-    A partir del producto de supermercado: "{producto_detectado}", 
-    recomiéndame 3 productos relacionados o complementarios. El id relaciónalo con la categoría, pero solo el nombre de producto: 
+    A partir de la lista de producto de supermercados: "{productos_detectados}", 
+    recomiéndame 3 productos relacionados o complementarios que no se repitan. El id relaciónalo con la categoría, pero solo el nombre de producto: 
     Devuelve la respuesta estrictamente en formato JSON utilizando la siguiente estructura:
     {{
-    "producto_base": "{producto_detectado}",
+    "producto_base": "{productos_detectados}",
     "recomendaciones": [
         {{"id": 1, "nombre": "Nombre del producto 1", "motivo": "Por qué combina bien"}},
         {{"id": 2, "nombre": "Nombre del producto 2", "motivo": "Por qué combina bien"}},
@@ -247,3 +247,6 @@ def main(producto_detectado):
         if chunk.choices[0].delta.content is not None:
             res += chunk.choices[0].delta.content
     return res
+
+
+print(main("tomate, arroz, aceite"))
