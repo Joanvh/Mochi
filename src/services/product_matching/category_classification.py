@@ -235,7 +235,6 @@ def limpiar_frase(query):
 
   # C. Volver a unir la consulta limpia en un solo string (o dejarla como lista según prefieras)
   query_limpia = " ".join(palabras_filtradas)
-  print(f"Consulta sin stopwords: '{query_limpia}'\n")
   return palabras_filtradas
 
 def obtener_tres_mas_similares(query, lista_categorias):
