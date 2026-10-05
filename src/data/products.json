@@ -1,5 +1,5 @@
 [
-  { "id": "product_milk_semi", "name": "Leche semidesnatada", "categoryId": "cat_dairy", "brand": "Hacendado", "keywords": ["leche", "semi", "semidesnatada"], "unitLabel": "1 l", "active": true },
+  { "id": "product_milk_semi", "name": "Leche semidesnatada", "categoryId": "cat_dairy", "brand": "Hacendado", "keywords": ["leche", "semi", "semidesnatada", "sin lactosa", "leche sin lactosa"], "unitLabel": "1 l", "active": true },
   { "id": "product_milk_whole", "name": "Leche entera", "categoryId": "cat_dairy", "brand": "Hacendado", "keywords": ["leche", "entera"], "unitLabel": "1 l", "active": true },
   { "id": "product_yogurt_natural", "name": "Yogur natural", "categoryId": "cat_dairy", "brand": "Hacendado", "keywords": ["yogur", "yogurt", "natural"], "unitLabel": "pack 4", "active": true },
   { "id": "product_cheese_grated", "name": "Queso rallado", "categoryId": "cat_dairy", "brand": "Hacendado", "keywords": ["queso", "rallado", "mozarella"], "unitLabel": "200 g", "active": true },
@@ -10,7 +10,8 @@
   { "id": "product_carrot", "name": "Zanahoria", "categoryId": "cat_fruit_veg", "keywords": ["zanahoria"], "unitLabel": "kg", "active": true },
   { "id": "product_apple", "name": "Manzana golden", "categoryId": "cat_fruit_veg", "keywords": ["manzana", "golden"], "unitLabel": "kg", "active": true },
   { "id": "product_rice", "name": "Arroz redondo", "categoryId": "cat_dry_food", "brand": "Hacendado", "keywords": ["arroz", "redondo"], "unitLabel": "1 kg", "active": true },
-  { "id": "product_spaghetti", "name": "Espaguetis", "categoryId": "cat_dry_food", "brand": "Hacendado", "keywords": ["pasta", "espaguetis", "spaghetti"], "unitLabel": "500 g", "active": true },
+  { "id": "product_spaghetti", "name": "Espaguetis", "categoryId": "cat_dry_food", "brand": "Hacendado", "keywords": ["pasta", "espaguetis", "spaghetti", "macarrones"], "unitLabel": "500 g", "active": true },
+
   { "id": "product_tomato_sauce", "name": "Tomate frito", "categoryId": "cat_dry_food", "brand": "Hacendado", "keywords": ["tomate", "frito", "salsa"], "unitLabel": "400 g", "active": true },
   { "id": "product_tuna", "name": "Atún en aceite de oliva", "categoryId": "cat_dry_food", "brand": "Hacendado", "keywords": ["atun", "atún", "conserva"], "unitLabel": "pack 3", "active": true },
   { "id": "product_water", "name": "Agua mineral", "categoryId": "cat_drinks", "keywords": ["agua", "mineral"], "unitLabel": "1.5 l", "active": true },
