@@ -1,0 +1,10 @@
+[
+  { "id": "cat_fruit_veg", "name": "Frutas y verduras", "keywords": ["fruta", "verdura", "hortaliza"] },
+  { "id": "cat_dairy", "name": "Lácteos", "keywords": ["leche", "yogur", "queso"] },
+  { "id": "cat_eggs", "name": "Huevos", "keywords": ["huevos"] },
+  { "id": "cat_drinks", "name": "Bebidas", "keywords": ["agua", "zumo", "bebida"] },
+  { "id": "cat_dry_food", "name": "Alimentación seca", "keywords": ["arroz", "pasta", "conserva"] },
+  { "id": "cat_chilled", "name": "Refrigerados", "keywords": ["carne", "fiambre", "refrigerado"] },
+  { "id": "cat_cleaning", "name": "Limpieza", "keywords": ["limpieza", "hogar"] },
+  { "id": "cat_bakery", "name": "Panadería", "keywords": ["pan", "bollería"] }
+]
