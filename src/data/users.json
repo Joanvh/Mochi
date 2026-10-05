@@ -1,0 +1,24 @@
+[
+  {
+    "id": "usr_001",
+    "email": "ana@ejemplo.com",
+    "password": "demo",
+    "nombre": "Ana García",
+    "lista_compra": [
+      "Leche sin lactosa", 
+      "Arroz",  
+      "Pollo"   
+    ]
+  },
+  {
+    "id": "usr_002",
+    "email": "carlos@ejemplo.com",
+    "password": "demo",
+    "nombre": "Carlos Vegano",
+    "lista_compra": [
+      "Agua", 
+      "Macarrones", 
+      "Tomate"  
+    ]
+  }
+]

@@ -25,7 +25,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from route import INF, Store
+from routing.route import INF, Store
 
 DATA_DIR = os.environ.get("STORES_DIR", os.path.dirname(os.path.abspath(__file__)))
 
@@ -115,3 +115,67 @@ def add_incident(store_id: str, inc: Incident):
 def clear_incidents(store_id: str):
     _store(store_id).clear_incidents()
     return {"ok": True}
+
+
+from fastapi import HTTPException
+from pydantic import BaseModel
+import json
+import os
+
+# --- MODELOS DE DATOS ---
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+class UserResponse(BaseModel):
+    id: str
+    email: str
+    nombre: str
+    perfil_dietetico: list[str]
+    lista_compra: list[str]
+
+# --- CARGA DE DATOS MOCK ---
+DATA_DIR = os.environ.get("STORES_DIR", os.path.dirname(os.path.abspath(__file__)))
+USUARIOS_FILE = os.path.join(DATA_DIR, "users.json")
+
+def cargar_usuarios():
+    try:
+        with open(USUARIOS_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return []
+
+# --- ENDPOINTS DE AUTENTICACIÓN ---
+
+@app.post("/login", response_model=UserResponse, tags=["Autenticación"])
+def login(credenciales: LoginRequest):
+    """
+    Valida las credenciales contra el JSON mockeado.
+    En un entorno real, esto devolvería un JWT. Para el MVP, devuelve el perfil directamente.
+    """
+    usuarios = cargar_usuarios()
+    
+    for user in usuarios:
+        if user["email"] == credenciales.email and user["password"] == credenciales.password:
+            # Eliminar la contraseña antes de enviar la respuesta al cliente por seguridad
+            return UserResponse(
+                id=user["id"],
+                email=user["email"],
+                nombre=user["nombre"],
+                perfil_dietetico=user.get("perfil_dietetico", []),
+                lista_compra=user.get("lista_compra", [])
+            )
+            
+    raise HTTPException(status_code=401, detail="Correo o contraseña incorrectos")
+
+@app.get("/users/{user_id}/lista", tags=["Usuario"])
+def obtener_lista_compra(user_id: str):
+    """
+    Permite al frontend recuperar la lista activa del usuario sin volver a iniciar sesión.
+    """
+    usuarios = cargar_usuarios()
+    for user in usuarios:
+        if user["id"] == user_id:
+            return {"lista_compra": user.get("lista_compra", [])}
+            
+    raise HTTPException(status_code=404, detail="Usuario no encontrado")
