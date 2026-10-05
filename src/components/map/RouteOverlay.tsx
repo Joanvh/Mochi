@@ -16,5 +16,8 @@ export function RouteOverlay({ graph, nodePath }: RouteOverlayProps) {
 
   const points = nodes.map((node) => `${node.x},${node.y}`).join(' ')
 
-  return <polyline className="store-map__route" points={points} aria-label="Ruta calculada" />
+  return <g aria-label="Ruta calculada">
+    <polyline className="store-map__route-halo" points={points} />
+    <polyline className="store-map__route" points={points} />
+  </g>
 }
