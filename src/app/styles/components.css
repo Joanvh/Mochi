@@ -67,5 +67,13 @@
 .store-map__shelf-label { font-size: 14px; }
 .store-map__wall { stroke: var(--color-footer); stroke-width: 8; stroke-linecap: round; }
 .store-map__route { fill: none; stroke: var(--color-primary); stroke-width: 12; stroke-linecap: round; stroke-linejoin: round; opacity: 0.9; vector-effect: non-scaling-stroke; }
+.route-summary-page__metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); margin: var(--space-6) 0; }
+.route-summary-page__metrics div { padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-background); }
+.route-summary-page__metrics dt, .route-summary-page__next-label { color: var(--color-text-secondary); font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; }
+.route-summary-page__metrics dd { margin: var(--space-1) 0 0; font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; }
+.route-summary-page__details { margin-bottom: var(--space-6); padding: var(--space-4); border-radius: var(--radius-md); background: var(--color-primary-subtle); }
+.route-summary-page__next-label { margin-bottom: var(--space-1); color: var(--color-primary-active); }
+.route-summary-page__details h2 { margin-bottom: var(--space-3); font-size: 1.25rem; }
+.route-summary-page__products { display: grid; gap: var(--space-1); padding-left: var(--space-6); margin: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (min-width: 640px) { .app-header { min-height: 80px; padding-inline: var(--space-8); } .page-container { padding: var(--space-12) var(--space-8); } .entry-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
