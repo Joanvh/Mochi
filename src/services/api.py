@@ -21,9 +21,10 @@ import glob
 import os
 from typing import Literal
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+router = APIRouter(prefix="/api/v1/routing", tags=["Routing"])
 
 from routing.route import INF, Store
 
@@ -41,7 +42,6 @@ for _path in sorted(glob.glob(os.path.join(DATA_DIR, "tienda_*.json"))):
 app = FastAPI(title="Mercadona Sync · rutas")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-
 def _store(store_id: str) -> Store:
     st = STORES.get(store_id)
     if st is None:
@@ -57,17 +57,17 @@ def _plan(store_id, products, start_section, end_section):
         raise HTTPException(422, str(e))
 
 
-@app.get("/stores")
+@router.get("/stores")
 def list_stores():
     return [{"store_id": k, "nombre": s.data["nombre"]} for k, s in STORES.items()]
 
 
-@app.get("/stores/{store_id}")
+@router.get("/stores/{store_id}")
 def get_store(store_id: str):
     return _store(store_id).data
 
 
-@app.get("/route")
+@router.get("/route")
 def get_route(
     store_id: str,
     products: list[str] = Query(default=[]),
@@ -78,7 +78,7 @@ def get_route(
     return _plan(store_id, products, start_section, end_section)
 
 
-@app.get("/route/sections")
+@router.get("/route/sections")
 def get_route_sections(
     store_id: str,
     products: list[str] = Query(default=[]),
@@ -96,7 +96,7 @@ class Incident(BaseModel):
     cost: float = 10                # solo para "jam": coste extra por celda
 
 
-@app.post("/stores/{store_id}/incidents")
+@router.post("/stores/{store_id}/incidents")
 def add_incident(store_id: str, inc: Incident):
     st = _store(store_id)
     try:
@@ -111,7 +111,7 @@ def add_incident(store_id: str, inc: Incident):
     return {"ok": True}
 
 
-@app.delete("/stores/{store_id}/incidents")
+@router.delete("/stores/{store_id}/incidents")
 def clear_incidents(store_id: str):
     _store(store_id).clear_incidents()
     return {"ok": True}
@@ -143,7 +143,7 @@ def cargar_usuarios():
 
 # --- ENDPOINTS DE AUTENTICACIÓN ---
 
-@app.post("/login", response_model=UserResponse, tags=["Autenticación"])
+@router.post("/login", response_model=UserResponse, tags=["Autenticación"])
 def login(credenciales: LoginRequest):
     """
     Valida las credenciales contra el JSON mockeado.
@@ -163,15 +163,3 @@ def login(credenciales: LoginRequest):
             )
             
     raise HTTPException(status_code=401, detail="Correo o contraseña incorrectos")
-
-@app.get("/users/{user_id}/lista", tags=["Usuario"])
-def obtener_lista_compra(user_id: str):
-    """
-    Permite al frontend recuperar la lista activa del usuario sin volver a iniciar sesión.
-    """
-    usuarios = cargar_usuarios()
-    for user in usuarios:
-        if user["id"] == user_id:
-            return {"lista_compra": user.get("lista_compra", [])}
-            
-    raise HTTPException(status_code=404, detail="Usuario no encontrado")
