@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "node --experimental-strip-types --test src/services/routing/ShortestPathSolver.test.ts src/services/routing/RoutingEngine.test.ts src/services/incidents/IncidentRules.test.ts"
+    "test": "node --experimental-strip-types --test src/services/routing/ShortestPathSolver.test.ts src/services/routing/RoutingEngine.test.ts src/services/incidents/IncidentRules.test.ts src/services/incidents/IncidentManager.test.ts"
   },
   "dependencies": {
     "react": "^19.2.8",
