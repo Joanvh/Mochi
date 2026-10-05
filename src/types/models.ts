@@ -118,8 +118,10 @@ export type CheckoutStatus = 'OPEN' | 'CLOSED'
 export interface DemoUser {
   id: ID
   name: string
+  email?: string
   shoppingListId: ID
 }
+
 
 export interface ShoppingList {
   id: ID
