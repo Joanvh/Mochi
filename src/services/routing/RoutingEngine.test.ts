@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import type { Checkout, ProductLocation, StoreGraph } from '../../types/models.ts'
+import type { Checkout, Incident, ProductLocation, StoreGraph } from '../../types/models.ts'
 import { selectBestCheckout } from './CheckoutSelector.ts'
 import { planMultiStopRoute } from './MultiStopRoutePlanner.ts'
 import { calculateRoute } from './RoutingEngine.ts'
@@ -49,4 +49,22 @@ test('routing engine returns products, route, and final checkout', () => {
   assert.deepEqual(route?.orderedProductIds, ['apple', 'milk'])
   assert.equal(route?.checkoutId, 'fast')
   assert.equal(route?.estimatedTime, 6)
+})
+
+test('routing engine avoids a checkout path blocked by an incident', () => {
+  const incidents: Incident[] = [{
+    id: 'spill-dairy-fast',
+    type: 'SPILL',
+    targetType: 'EDGE',
+    targetId: 'dairy_fast',
+    severity: 'HIGH',
+    source: 'DEMO',
+    createdAt: '2026-10-05T09:00:00.000Z',
+    status: 'ACTIVE',
+  }]
+
+  const route = calculateRoute({ graph, currentNodeId: 'start', pendingProducts: productLocations, incidents, checkouts })
+
+  assert.equal(route?.checkoutId, 'near')
+  assert.deepEqual(route?.nodePath, ['start', 'fruit', 'dairy', 'checkout_near'])
 })

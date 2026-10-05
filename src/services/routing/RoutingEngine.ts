@@ -1,14 +1,28 @@
 import type { RouteInput, RouteResult } from '../../types'
 import { selectBestCheckout } from './CheckoutSelector.ts'
 import { planMultiStopRoute } from './MultiStopRoutePlanner.ts'
+import { calculateEdgeCost } from './RouteCostCalculator.ts'
 
 export function calculateRoute(input: RouteInput): RouteResult | null {
-  const routePlan = planMultiStopRoute(input.graph, input.currentNodeId, input.pendingProducts)
+  const costResolver = (edge: RouteInput['graph']['edges'][number]) => (
+    calculateEdgeCost(edge, input.incidents)
+  )
+  const routePlan = planMultiStopRoute(
+    input.graph,
+    input.currentNodeId,
+    input.pendingProducts,
+    costResolver,
+  )
   if (!routePlan) {
     return null
   }
 
-  const checkoutSelection = selectBestCheckout(input.graph, routePlan.lastNodeId, input.checkouts)
+  const checkoutSelection = selectBestCheckout(
+    input.graph,
+    routePlan.lastNodeId,
+    input.checkouts,
+    costResolver,
+  )
   if (!checkoutSelection) {
     return null
   }
