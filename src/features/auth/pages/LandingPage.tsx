@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import mercadonaLogo from '../../../assets/branding/mercadona-logo.png'
 import { PageContainer } from '../../../components/common/PageContainer'
 import { GuestEntry } from '../components/GuestEntry'
 import { LoginModal } from '../components/LoginModal'
@@ -12,6 +13,7 @@ export function LandingPage() {
   return (
     <PageContainer className="landing-page">
       <div className="landing-page__intro">
+        <img className="landing-page__logo" src={mercadonaLogo} alt="Mercadona" />
         <p className="eyebrow">Tu compra, mejor organizada</p>
         <h1>Encuentra todo sin perder tiempo.</h1>
         <p>
@@ -26,4 +28,3 @@ export function LandingPage() {
     </PageContainer>
   )
 }
-
