@@ -1,13 +1,20 @@
 import { useState } from 'react'
 import { Button } from '../../../components/common/Button'
 import { PageContainer } from '../../../components/common/PageContainer'
+import { JsonProductRepository } from '../../../repositories/JsonProductRepository'
+import { ProductMatchingService } from '../../../services/product-matching/ProductMatchingService'
 import type { ShoppingListItem } from '../../../types'
 import { ManualListInput } from '../components/ManualListInput'
+import { ProductMatchSelector, type ProductMatchOption } from '../components/ProductMatchSelector'
 import { ShoppingListEditor } from '../components/ShoppingListEditor'
 
-function createDraftItem(rawText: string, index: number): ShoppingListItem {
+const productRepository = new JsonProductRepository()
+const productMatchingService = new ProductMatchingService(productRepository)
+let nextDraftItemId = 0
+
+function createDraftItem(rawText: string): ShoppingListItem {
   return {
-    id: `draft_${Date.now()}_${index}`,
+    id: `draft_${nextDraftItemId++}`,
     rawText,
     quantity: 1,
     status: 'UNRESOLVED',
@@ -17,13 +24,61 @@ function createDraftItem(rawText: string, index: number): ShoppingListItem {
 
 export function ShoppingListPage() {
   const [items, setItems] = useState<ShoppingListItem[]>([])
+  const [isMatching, setIsMatching] = useState(false)
+  const [matchOptions, setMatchOptions] = useState<Record<string, ProductMatchOption[]>>({})
+  const [unmatchedItemIds, setUnmatchedItemIds] = useState<string[]>([])
 
-  function addTerms(terms: string[]) {
-    setItems((currentItems) => [...currentItems, ...terms.map(createDraftItem)])
+  async function addTerms(terms: string[]) {
+    setIsMatching(true)
+
+    try {
+      const entries = await Promise.all(terms.map(async (term) => {
+        const item = createDraftItem(term)
+        const options = await getMatchOptions(term)
+
+        if (options.length === 1) {
+          return {
+            item: { ...item, productId: options[0].product.id, status: 'PENDING' as const },
+            options: [] as ProductMatchOption[],
+            unmatched: false,
+          }
+        }
+
+        return { item, options, unmatched: options.length === 0 }
+      }))
+
+      setItems((currentItems) => [...currentItems, ...entries.map((entry) => entry.item)])
+      setMatchOptions((currentOptions) => ({
+        ...currentOptions,
+        ...Object.fromEntries(entries.filter((entry) => entry.options.length > 1).map((entry) => [entry.item.id, entry.options])),
+      }))
+      setUnmatchedItemIds((currentIds) => [
+        ...currentIds,
+        ...entries.filter((entry) => entry.unmatched).map((entry) => entry.item.id),
+      ])
+    } finally {
+      setIsMatching(false)
+    }
   }
 
   function removeItem(itemId: string) {
     setItems((currentItems) => currentItems.filter((item) => item.id !== itemId))
+    setUnmatchedItemIds((currentIds) => currentIds.filter((id) => id !== itemId))
+    setMatchOptions((currentOptions) => {
+      const { [itemId]: _removed, ...remainingOptions } = currentOptions
+      return remainingOptions
+    })
+  }
+
+  function selectMatch(itemId: string, productId: string) {
+    setItems((currentItems) => currentItems.map((item) => (
+      item.id === itemId ? { ...item, productId, status: 'PENDING' } : item
+    )))
+    setUnmatchedItemIds((currentIds) => currentIds.filter((id) => id !== itemId))
+    setMatchOptions((currentOptions) => {
+      const { [itemId]: _resolved, ...remainingOptions } = currentOptions
+      return remainingOptions
+    })
   }
 
   return (
@@ -33,9 +88,22 @@ export function ShoppingListPage() {
       <p className="shopping-list-page__description">
         Añade los productos que quieres comprar. Los relacionaremos con el catálogo en el siguiente bloque.
       </p>
-      <ManualListInput onSubmit={addTerms} />
-      <ShoppingListEditor items={items} onRemove={removeItem} />
-      <Button fullWidth disabled={items.length === 0}>Confirmar lista</Button>
+      <ManualListInput isSubmitting={isMatching} onSubmit={addTerms} />
+      <ShoppingListEditor items={items} unmatchedItemIds={unmatchedItemIds} onRemove={removeItem} />
+      {items.flatMap((item) => matchOptions[item.id] ? [{ item, options: matchOptions[item.id] }] : []).map(({ item, options }) => (
+        <ProductMatchSelector key={item.id} itemId={item.id} query={item.rawText} options={options} onSelect={(productId) => selectMatch(item.id, productId)} />
+      ))}
+      <Button fullWidth disabled={items.length === 0 || items.some((item) => item.status === 'UNRESOLVED')}>
+        Confirmar lista
+      </Button>
     </PageContainer>
   )
+}
+
+async function getMatchOptions(query: string): Promise<ProductMatchOption[]> {
+  const matches = await productMatchingService.match(query)
+  return Promise.all(matches.map(async (match): Promise<ProductMatchOption | null> => {
+    const product = await productRepository.getById(match.productId)
+    return product ? { product, match } : null
+  })).then((options) => options.filter((option): option is ProductMatchOption => option !== null))
 }

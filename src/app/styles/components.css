@@ -38,5 +38,10 @@
 .shopping-list-editor__item p { margin: 0 0 var(--space-1); font-weight: 700; }
 .status-badge { color: var(--color-text-secondary); font-size: 0.875rem; }
 .empty-list { margin: 0 0 var(--space-6); padding: var(--space-6); border: 1px dashed var(--color-border); border-radius: var(--radius-md); color: var(--color-text-secondary); text-align: center; }
+.product-match-selector { margin-bottom: var(--space-6); padding: var(--space-4); border: 1px solid var(--color-warning); border-radius: var(--radius-md); background: #fffaf0; }
+.product-match-selector__title { margin-bottom: var(--space-3); font-weight: 700; }
+.product-match-selector__options { display: grid; gap: var(--space-2); }
+.product-match-selector .button { justify-content: space-between; gap: var(--space-3); text-align: left; }
+.product-match-selector small { color: var(--color-text-secondary); font-size: 0.75rem; font-weight: 400; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (min-width: 640px) { .app-header { min-height: 80px; padding-inline: var(--space-8); } .page-container { padding: var(--space-12) var(--space-8); } .entry-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

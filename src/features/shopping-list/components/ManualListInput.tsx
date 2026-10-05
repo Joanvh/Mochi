@@ -3,13 +3,14 @@ import { Button } from '../../../components/common/Button'
 import { parseManualListInput } from '../utils/manualListParser'
 
 interface ManualListInputProps {
-  onSubmit: (terms: string[]) => void
+  isSubmitting?: boolean
+  onSubmit: (terms: string[]) => void | Promise<void>
 }
 
-export function ManualListInput({ onSubmit }: ManualListInputProps) {
+export function ManualListInput({ isSubmitting = false, onSubmit }: ManualListInputProps) {
   const [value, setValue] = useState('')
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const terms = parseManualListInput(value)
 
@@ -17,7 +18,7 @@ export function ManualListInput({ onSubmit }: ManualListInputProps) {
       return
     }
 
-    onSubmit(terms)
+    await onSubmit(terms)
     setValue('')
   }
 
@@ -30,10 +31,11 @@ export function ManualListInput({ onSubmit }: ManualListInputProps) {
         aria-describedby="manual-list-help"
         value={value}
         onChange={(event) => setValue(event.target.value)}
+        disabled={isSubmitting}
         placeholder={'Leche\nHuevos\nArroz'}
         rows={4}
       />
-      <Button type="submit">Añadir a la lista</Button>
+      <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Buscando productos…' : 'Añadir a la lista'}</Button>
     </form>
   )
 }
