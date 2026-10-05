@@ -1,3 +1,4 @@
+import json
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import List
@@ -19,7 +20,7 @@ class RecommendationRequest(BaseModel):
 
 class RecommendationResponse(BaseModel):
     """Modelo de respuesta con las sugerencias de cross-selling."""
-    recomendaciones: List[str] = Field(
+    recomendaciones: List[dict] = Field(
         ..., 
         description="Los 3 productos sugeridos para completar la compra"
     )
@@ -36,13 +37,14 @@ async def recomendar_productos(request: RecommendationRequest):
         # Llamamos al método main pasándole la lista de strings
         resultado = generar_recomendaciones(request.lista_compra)
         
-        # Nos aseguramos de extraer solo los 3 primeros elementos
-        if isinstance(resultado, list):
-            top_3 = resultado[:3]
-        else:
-            top_3 = []
+        # Recibimos un string
+        lista_json = json.loads(resultado)
+        print(lista_json)
+        print(type(lista_json))
+        print(type(lista_json[0]))
 
-        return RecommendationResponse(recomendaciones=top_3)
+        # Nos aseguramos de extraer solo los 3 primeros elementos
+        return RecommendationResponse(recomendaciones=lista_json)
         
     except Exception as e:
         raise HTTPException(

@@ -1,3 +1,4 @@
+import re
 import json
 import os
 from openai import OpenAI
@@ -14,14 +15,11 @@ def main(productos_detectados):
     A partir de la lista de producto de supermercados: "{productos_detectados}", 
     recomiéndame 3 productos relacionados o complementarios que no se repitan. El id relaciónalo con la categoría, pero solo el nombre de producto: 
     Devuelve la respuesta estrictamente en formato JSON utilizando la siguiente estructura:
-    {{
-    "producto_base": "{productos_detectados}",
-    "recomendaciones": [
-        {{"id": 1, "nombre": "Nombre del producto 1", "motivo": "Por qué combina bien"}},
-        {{"id": 2, "nombre": "Nombre del producto 2", "motivo": "Por qué combina bien"}},
-        {{"id": 3, "nombre": "Nombre del producto 3", "motivo": "Por qué combina bien"}}
+    [
+    {{"id": 1, "nombre": "Nombre del producto 1", "motivo": "Por qué combina bien"}},
+    {{"id": 2, "nombre": "Nombre del producto 2", "motivo": "Por qué combina bien"}},
+    {{"id": 3, "nombre": "Nombre del producto 3", "motivo": "Por qué combina bien"}}
     ]
-    }}
 
 
     lista_palabras = [
@@ -247,6 +245,3 @@ def main(productos_detectados):
         if chunk.choices[0].delta.content is not None:
             res += chunk.choices[0].delta.content
     return res
-
-
-print(main("tomate, arroz, aceite"))
