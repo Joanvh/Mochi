@@ -4,6 +4,7 @@ import { Button } from '../../../components/common/Button'
 import { PageContainer } from '../../../components/common/PageContainer'
 import { JsonProductRepository } from '../../../repositories/JsonProductRepository'
 import { ProductMatchingService } from '../../../services/product-matching/ProductMatchingService'
+import { useAppStore } from '../../../store/useAppStore'
 import type { ShoppingListItem } from '../../../types'
 import { ManualListInput } from '../components/ManualListInput'
 import { ProductMatchSelector, type ProductMatchOption } from '../components/ProductMatchSelector'
@@ -25,7 +26,8 @@ function createDraftItem(rawText: string): ShoppingListItem {
 
 export function ShoppingListPage() {
   const navigate = useNavigate()
-  const [items, setItems] = useState<ShoppingListItem[]>([])
+  const items = useAppStore((state) => state.draftShoppingList)
+  const setItems = useAppStore((state) => state.setDraftShoppingList)
   const [isMatching, setIsMatching] = useState(false)
   const [matchOptions, setMatchOptions] = useState<Record<string, ProductMatchOption[]>>({})
   const [unmatchedItemIds, setUnmatchedItemIds] = useState<string[]>([])
@@ -49,7 +51,7 @@ export function ShoppingListPage() {
         return { item, options, unmatched: options.length === 0 }
       }))
 
-      setItems((currentItems) => [...currentItems, ...entries.map((entry) => entry.item)])
+    setItems([...items, ...entries.map((entry) => entry.item)])
       setMatchOptions((currentOptions) => ({
         ...currentOptions,
         ...Object.fromEntries(entries.filter((entry) => entry.options.length > 1).map((entry) => [entry.item.id, entry.options])),
@@ -64,7 +66,7 @@ export function ShoppingListPage() {
   }
 
   function removeItem(itemId: string) {
-    setItems((currentItems) => currentItems.filter((item) => item.id !== itemId))
+    setItems(items.filter((item) => item.id !== itemId))
     setUnmatchedItemIds((currentIds) => currentIds.filter((id) => id !== itemId))
     setMatchOptions((currentOptions) => {
       const { [itemId]: _removed, ...remainingOptions } = currentOptions
@@ -73,7 +75,7 @@ export function ShoppingListPage() {
   }
 
   function selectMatch(itemId: string, productId: string) {
-    setItems((currentItems) => currentItems.map((item) => (
+    setItems(items.map((item) => (
       item.id === itemId ? { ...item, productId, status: 'PENDING' } : item
     )))
     setUnmatchedItemIds((currentIds) => currentIds.filter((id) => id !== itemId))
@@ -95,7 +97,7 @@ export function ShoppingListPage() {
       {items.flatMap((item) => matchOptions[item.id] ? [{ item, options: matchOptions[item.id] }] : []).map(({ item, options }) => (
         <ProductMatchSelector key={item.id} itemId={item.id} query={item.rawText} options={options} onSelect={(productId) => selectMatch(item.id, productId)} />
       ))}
-      <Button fullWidth disabled={items.length === 0 || items.some((item) => item.status === 'UNRESOLVED')} onClick={() => navigate('/recommendations', { state: { items } })}>
+      <Button fullWidth disabled={items.length === 0 || items.some((item) => item.status === 'UNRESOLVED')} onClick={() => navigate('/recommendations')}>
         Confirmar lista
       </Button>
     </PageContainer>
