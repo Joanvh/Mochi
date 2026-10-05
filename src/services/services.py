@@ -1,12 +1,14 @@
 from fastapi import FastAPI
-from incidents.incidents_service import router as incidencias_router
+from incidents.incidents_service import router as incidents_router
 from product_matching.product_matching_service import router as product_matching_router
 from api import router as routing_router
+from recommendations.recommendations_service import router as recommendations_router
 
 app = FastAPI(title="Mercadona Sync API")
 
 # Se conectan los módulos de cada persona
-app.include_router(incidencias_router)
+app.include_router(incidents_router)
+app.include_router(recommendations_router)
 app.include_router(product_matching_router)
 app.include_router(routing_router)
 
