@@ -1,4 +1,5 @@
 import type { Incident, Route, Store } from '../../types'
+import { RouteOverlay } from './RouteOverlay'
 import { StoreLayout } from './StoreLayout'
 
 export interface StoreMapProps {
@@ -12,7 +13,6 @@ export interface StoreMapProps {
 export function StoreMap({ currentNodeId, incidents, route, store, targetProductId }: StoreMapProps) {
   void currentNodeId
   void incidents
-  void route
   void targetProductId
 
   return <figure className="store-map">
@@ -20,6 +20,7 @@ export function StoreMap({ currentNodeId, incidents, route, store, targetProduct
       <title id="store-map-title">Plano de {store.displayName}</title>
       <desc id="store-map-description">Distribución de secciones, estanterías, entrada y cajas de la tienda.</desc>
       <StoreLayout layout={store.layout} />
+      {route && <RouteOverlay graph={store.graph} nodePath={route.nodePath} />}
     </svg>
     <figcaption>Plano de la tienda</figcaption>
   </figure>

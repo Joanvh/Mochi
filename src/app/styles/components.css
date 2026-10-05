@@ -66,5 +66,6 @@
 .store-map__shelf { fill: var(--color-footer); opacity: 0.82; }
 .store-map__shelf-label { font-size: 14px; }
 .store-map__wall { stroke: var(--color-footer); stroke-width: 8; stroke-linecap: round; }
+.store-map__route { fill: none; stroke: var(--color-primary); stroke-width: 12; stroke-linecap: round; stroke-linejoin: round; opacity: 0.9; vector-effect: non-scaling-stroke; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (min-width: 640px) { .app-header { min-height: 80px; padding-inline: var(--space-8); } .page-container { padding: var(--space-12) var(--space-8); } .entry-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
