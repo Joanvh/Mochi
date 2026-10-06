@@ -51,7 +51,11 @@ interface CategoryResponse {
 }
 
 interface RecommendationsResponse {
-  recomendaciones: string[]
+  recomendaciones: Array<{
+    id: string | number
+    nombre: string
+    motivo?: string
+  }>
 }
 
 interface BackendProductMatch {
@@ -246,14 +250,14 @@ export const mercadonaApi = {
 
   async getRecommendations(products: string[], storeId: string): Promise<BackendRecommendation[]> {
     const response = await apiClient.post<RecommendationsResponse>('/api/v1/recommendations/', { lista_compra: products })
-    const resolved = await Promise.all(response.recomendaciones.map(async (name, index): Promise<BackendRecommendation | null> => {
-      const matches = await mercadonaApi.matchProducts(name, storeId)
+    const resolved = await Promise.all(response.recomendaciones.map(async (suggestion, index): Promise<BackendRecommendation | null> => {
+      const matches = await mercadonaApi.matchProducts(suggestion.nombre, storeId)
       const first = matches[0]
       if (!first) return null
       const recommendation: ProductRecommendation = {
-        id: `ai_${first.product.id}_${index}`,
+        id: `ai_${suggestion.id}_${first.product.id}_${index}`,
         productId: first.product.id,
-        reason: 'Sugerencia personalizada por tu lista actual.',
+        reason: suggestion.motivo ?? 'Sugerencia personalizada por tu lista actual.',
         source: 'AI',
         status: 'PENDING',
       }

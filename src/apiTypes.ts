@@ -62,7 +62,11 @@ export interface RecommendationRequest {
 }
 
 export interface RecommendationResponse {
-  recomendaciones: string[];
+  recomendaciones: Array<{
+    id: string | number;
+    nombre: string;
+    motivo?: string;
+  }>;
 }
 
 // --- TIPOS DE RUTAS ---
