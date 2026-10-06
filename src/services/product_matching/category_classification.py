@@ -9,7 +9,6 @@ from sentence_transformers import SentenceTransformer, util
 #nltk.download("punkt_tab", quiet=True)  
 
 # 1. Cargar un modelo multilingüe o específico para español
-# (puedes usar 'all-MiniLM-L6-v2' o un modelo especializado como 'hiiamsid/sentence_similarity_spanish_es')
 modelo = SentenceTransformer('BAAI/bge-m3')
 
 # 2. Definir el conjunto de stopwords en español
